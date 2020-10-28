@@ -1,0 +1,141 @@
+nw=read.csv("C:/Users/C/AppliCation Data/Desktop/Project.csv")
+nw
+attach(nw)
+enrollment=nw[,-5]
+enrollment
+attach(enrollment)
+
+#######fitting the data
+fit=glm(performance~CHOICE+New.Region+grade+GENDER,data=enrollment,family="binomial")
+summary(fit)
+
+
+#####################################fiting traindata and test data for only 
+
+
+dim(enrollment)
+
+train=sample(500, 250)
+train.enrollment=enrollment[train,]
+test.enrollment=enrollment[-train,]
+test.PERFORMANCE=PREFORMANCE[-train]
+
+model.fit=glm(PREFORMANCE~grade,data=enrollment,subset=train,family="binomial")####fitting logistics model including only variable that is highly significant
+summary(model.fit)
+
+
+pred.model=predict(model.fit,test.enrollment,type="response")
+set.seed(1)
+conf.matrix=rep(0,length(pred.model))
+conf.matrix[pred.model>0.5]=1
+table(conf.matrix,test.PERFORMANCE)
+mean(conf.matrix!=test.PERFORMANCE)
+
+(72+32)/(87+72+32+59)
+
+######################lda##########
+library(MASS)
+set.seed(1)
+lda.fit=lda(PREFORMANCE~GRADE,data=enrollment,subset=train)####fitting lda model including only variable that is highly significant
+summary(lda.fit)
+lda.pred=predict(lda.fit,test.enrollment)
+table(lda.pred$class,test.PERFORMANCE)
+
+(72+32)/(87+72+32+59)
+
+
+
+#################qda
+
+
+set.seed(1)
+qda.fit=qda(PREFORMANCE~GRADE,data=enrollment,subset=train)####fitting qda model including only variable that is highly significant
+summary(model.fit)
+qda.pred=predict(qda.fit,test.enrollment)
+table(qda.pred$class,test.PERFORMANCE)
+
+
+
+##################KNN############
+
+
+library(class)
+knntrain=cbind(PREFORMANCE,GRADE)[train,]
+knntest=cbind(PREFORMANCE,GRADE)[-train,]
+train.PERFORMANCE=PREFORMANCE[train]
+set.seed(10)
+
+knnmodel=knn(knntrain,knntest,test.PERFORMANCE,k=10)
+table(knnmodel,test.PERFORMANCE)
+
+
+
+
+
+
+
+
+
+###########################Tree Method
+
+library(tree)
+
+tree.fit=tree(PREFORMANCE~.,enrollment)
+summary(tree.fit)
+plot(tree.fit)
+text(tree.fit,pretty=0)
+
+
+#####tree validation
+
+set.seed(2)
+trainn=sample(1:nrow(enrollment),250)
+enrollment.test=enrollment[-trainn,]
+perfomance.test=PREFORMANCE[-train]
+
+tree.model=tree(PREFORMANCE~.,enrollment,subset=trainn)
+tree.pred=predict(tree.model,enrollment.test,type="where")
+table(tree.pred,perfomance.test)
+
+(76+47)/(80+76+47+47)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+library(ISLR)
+data(Carseats)
+attach(Carseats)
+fix(Carseats)
+
+High=ifelse(Sales <=8," No"," Yes ")
+
+Carseats =data.frame(Carseats ,High)
+tree.carseats =tree(High~.-Sales ,Carseats )
+
+lologg=glm(High~.-Sales,data=Carseats,family="binomial")
+summary(lologg)
+
+plot(tree.carseats )
+text(tree.carseats ,pretty =0)
+dim(Carseats)
+
+
+
+
+
+
+
+
+
+
